@@ -37,6 +37,7 @@ CommandType getCommandType(char* command) {
 
     return INVALID;
 }
+
 // REQ 2 
 void getTitleFromAdd(char* command, char* out_title) {
     char* start = strstr(command, "[");
@@ -292,6 +293,12 @@ int getFieldFromEdit(char *edit_cmd) {
         return 4; // Status
     } else {
         return 0; // Invalid field
+    }
+}
+// Req 10
+void printAllTasks(struct Task *array_tasks, int no_tasks) {
+    for (int i = 0; i < no_tasks; i++) {
+        printTask(&array_tasks[i]);
     }
 }
 
