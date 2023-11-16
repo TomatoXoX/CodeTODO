@@ -14,25 +14,6 @@
 struct Task tasks[MAX_NO_TASKS];
 int num_tasks = 0;
 
-void addTask(char * title, char * description, char * start_time, char * end_time) {
-    struct Task new_task;
-    new_task.num = num_tasks;
-    strncpy(new_task.title, title, MAX_LENGTH_TITLE);
-    new_task.title[MAX_LENGTH_TITLE] = '\0'; // Ensure null termination
-    strncpy(new_task.description, description, MAX_LENGTH_DESCRIPTION);
-    new_task.description[MAX_LENGTH_DESCRIPTION] = '\0'; // Ensure null termination
-    strncpy(new_task.start_time, start_time, MAX_LENGTH_TIME); // Corrected line
-    new_task.start_time[MAX_LENGTH_TIME] = '\0'; // Ensure null termination
-    strncpy(new_task.end_time, end_time, MAX_LENGTH_TIME); // Corrected line
-    new_task.end_time[MAX_LENGTH_TIME] = '\0'; // Ensure null termination
-    new_task.status = IN_PROGRESS;
-    tasks[num_tasks++] = new_task;
-
-    // Print the task after it has been added.
-    printTask(&new_task);
-}
-
-
 // REQ 1
 enum CommandType { ADD, EDIT, SHOW, DELETE, QUIT, INVALID };
 const char* command_name[] = { "ADD", "EDIT", "SHOW", "DELETE", "QUIT", "INVALID" };
