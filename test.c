@@ -95,7 +95,7 @@ int checkTitle(char * raw_title) {
     return -1;
 }
 
-
+// REQ 3
 int checkTitle(char* raw_title) {
     int length = strlen(raw_title);
 
