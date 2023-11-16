@@ -11,6 +11,7 @@
 #define WEEK_CELL_FIRST_COL_WIDTH 10
 #define WEEK_CELL_OTHER_COL_WIDTH 20
 
+// REQ 1
 enum CommandType { ADD, EDIT, SHOW, DELETE, QUIT, INVALID };
 const char* command_name[] = { "ADD", "EDIT", "SHOW", "DELETE", "QUIT", "INVALID" };
 typedef enum CommandType CommandType;
@@ -29,7 +30,7 @@ CommandType getCommandType(char* command) {
 
     return INVALID;
 }
-
+// REQ 2 
 void getTitleFromAdd(char* command, char* out_title) {
     char* start = strstr(command, "[");
     char* end = strstr(command, "]");
@@ -50,7 +51,17 @@ void getDescriptionFromAdd(char* command, char* out_description) {
         }
     }
 }
-
+void getTimeFromAdd(char* command, char* out_time) {
+    char* start = strrchr(command, '['); // To find the last occurrence of [
+    if (start) {
+        start += 1; // To skip the "["
+        char* end = strstr(start, "]");
+        if (end && end > start) {
+            strncpy(out_time, start, end - start);
+            out_time[end - start] = '\0';
+        }
+    }
+}
 // REQ 3
 int checkTitle(char * raw_title) {
     // Check if the title length is within the allowed limit
@@ -85,18 +96,6 @@ int checkTitle(char * raw_title) {
 }
 
 
-void getTimeFromAdd(char* command, char* out_time) {
-    char* start = strrchr(command, '['); // To find the last occurrence of [
-    if (start) {
-        start += 1; // To skip the "["
-        char* end = strstr(start, "]");
-        if (end && end > start) {
-            strncpy(out_time, start, end - start);
-            out_time[end - start] = '\0';
-        }
-    }
-}
-
 int checkTitle(char* raw_title) {
     int length = strlen(raw_title);
 
@@ -128,6 +127,7 @@ int checkTitle(char* raw_title) {
 
     return -1; // Title is valid
 }
+// REQ 4
 int checkDescription(char* raw_description) {
     int length = strlen(raw_description);
 
@@ -159,6 +159,7 @@ int checkDescription(char* raw_description) {
 
     return -1; // Description is valid
 }
+// REQ 5
 int checkTime(char* raw_time) {
     // Extract datetime1 and datetime2 from raw_time
     char datetime1[20];
