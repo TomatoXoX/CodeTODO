@@ -65,6 +65,44 @@ void getTimeFromAdd(char* command, char* out_time) {
         }
     }
 }
+void getTitleFromEdit(char *command, char *out_title) {
+    char *title_start = strstr(command, "title:[");
+    if (title_start != NULL) {
+        title_start += strlen("title:[");
+        char *title_end = strchr(title_start, ']');
+        if (title_end != NULL) {
+            size_t title_length = title_end - title_start;
+            strncpy(out_title, title_start, title_length);
+            out_title[title_length] = '\0';
+        }
+    }
+}
+
+void getDescriptionFromEdit(char *command, char *out_description) {
+    char *description_start = strstr(command, "description:[");
+    if (description_start != NULL) {
+        description_start += strlen("description:[");
+        char *description_end = strchr(description_start, ']');
+        if (description_end != NULL) {
+            size_t description_length = description_end - description_start;
+            strncpy(out_description, description_start, description_length);
+            out_description[description_length] = '\0';
+        }
+    }
+}
+
+void getTimeFromEdit(char *command, char *out_time) {
+    char *time_start = strstr(command, "time:[");
+    if (time_start != NULL) {
+        time_start += strlen("time:[");
+        char *time_end = strchr(time_start, ']');
+        if (time_end != NULL) {
+            size_t time_length = time_end - time_start;
+            strncpy(out_time, time_start, time_length);
+            out_time[time_length] = '\0';
+        }
+    }
+}
 // REQ 3
 int checkTitle(char * raw_title) {
     // Check if the title length is within the allowed limit
