@@ -330,6 +330,7 @@ void printTaskByNum(struct Task *array_tasks, int no_tasks, int num) {
     
     printf("Task with Num #%d not found.\n", num);
 }
+// Req 12
 void printHeadTasks(struct Task *array_tasks, int no_tasks, int quan) {
     int print_quantity = (quan < no_tasks) ? quan : no_tasks;
 
@@ -337,12 +338,36 @@ void printHeadTasks(struct Task *array_tasks, int no_tasks, int quan) {
         printTask(&array_tasks[i]);
     }
 }
-// Req 12
+// Req 13
 void printTailTasks(struct Task *array_tasks, int no_tasks, int quan) {
     int print_quantity = (quan < no_tasks) ? quan : no_tasks;
     
     for (int i = no_tasks - print_quantity; i < no_tasks; i++) {
         printTask(&array_tasks[i]);
+    }
+}
+// Req 14
+void printFilteredTasksByTitle(struct Task *array_tasks, int no_tasks, char *filter_title) {
+    for (int i = 0; i < no_tasks; i++) {
+        if (strstr(array_tasks[i].title, filter_title) != NULL) {
+            printTask(&array_tasks[i]);
+        }
+    }
+}
+// Req 15
+void printFilteredTasksByDescription(struct Task *array_tasks, int no_tasks, char *filter_description) {
+    for (int i = 0; i < no_tasks; i++) {
+        if (strstr(array_tasks[i].description, filter_description) != NULL) {
+            printTask(&array_tasks[i]);
+        }
+    }
+}
+// Req 16
+void printFilteredTasksByStatus(struct Task *array_tasks, int no_tasks, enum Status filter_status) {
+    for (int i = 0; i < no_tasks; i++) {
+        if (array_tasks[i].status == filter_status) {
+            printTask(&array_tasks[i]);
+        }
     }
 }
 // Test the functions
