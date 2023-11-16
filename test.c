@@ -95,38 +95,6 @@ int checkTitle(char * raw_title) {
     return -1;
 }
 
-// REQ 3
-int checkTitle(char* raw_title) {
-    int length = strlen(raw_title);
-
-    // Check maximum length condition
-    if (length > MAX_LENGTH_TITLE) {
-        return length;
-    }
-
-    // Check other conditions
-    for (int i = 0; i < length; i++) {
-        char ch = raw_title[i];
-
-        // Check if it's a valid character
-        if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
-              (ch >= '0' && ch <= '9') || ch == ' ' || ch == ',' ||
-              ch == '.' || ch == '-' || ch == ':' ||
-              ch == '|' || ch == '/')) {
-            return i;
-        }
-
-        // Check for leading or trailing whitespace
-        if (i == 0 && ch == ' ') {
-            return i;
-        }
-        if (i == length - 1 && ch == ' ') {
-            return i;
-        }
-    }
-
-    return -1; // Title is valid
-}
 // REQ 4
 int checkDescription(char* raw_description) {
     int length = strlen(raw_description);
