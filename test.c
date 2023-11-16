@@ -50,6 +50,8 @@ void getDescriptionFromAdd(char* command, char* out_description) {
         }
     }
 }
+
+
 int checkTitle(char * raw_title) {
     // Check if the title length is within the allowed limit
     if (strlen(raw_title) > MAX_LENGTH_TITLE) {
