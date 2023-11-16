@@ -256,6 +256,44 @@ int getNumFromCommand(char *command) {
 
     return num; // Valid <num>
 }
+// REQ 8: Information to be changed in the Edit command
+int getFieldFromEdit(char *edit_cmd) {
+    // Check if the edit command is NULL
+    if (edit_cmd == NULL) {
+        printf("Error: Null edit command\n");
+        return 0; // Invalid field
+    }
+
+    // Find the position of the second whitespace in the edit command
+    char *secondSpace = strchr(edit_cmd, ' ');
+    if (secondSpace == NULL) {
+        return 0; // Invalid field
+    }
+
+    // Move to the character after the second whitespace
+    secondSpace++;
+    // Find the position of the first colon after the second whitespace
+    char *colonPosition = strchr(secondSpace, ':');
+    if (colonPosition == NULL) {
+        return 0; // Invalid field
+    }
+
+    // Calculate the length of the potential field string
+    size_t fieldLength = colonPosition - secondSpace;
+
+    // Check the validity of the field string
+    if (fieldLength == 7) {
+        return 1; // Title
+    } else if (fieldLength == 13) {
+        return 2; // Description
+    } else if (fieldLength == 6) {
+        return 3; // Time
+    } else if (fieldLength == 8) {
+        return 4; // Status
+    } else {
+        return 0; // Invalid field
+    }
+}
 
 // Test the functions
 int main() {
