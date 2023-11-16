@@ -83,6 +83,8 @@ int checkTitle(char * raw_title) {
 
     return -1;
 }
+
+
 void getTimeFromAdd(char* command, char* out_time) {
     char* start = strrchr(command, '['); // To find the last occurrence of [
     if (start) {
