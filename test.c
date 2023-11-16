@@ -103,6 +103,31 @@ void getTimeFromEdit(char *command, char *out_time) {
         }
     }
 }
+// Req 9
+enum Status getStatusFromEdit(char *edit_cmd) {
+    char *status_start = strstr(edit_cmd, "status:[");
+    if (status_start != NULL) {
+        status_start += strlen("status:[");
+        char *status_end = strchr(status_start, ']');
+        if (status_end != NULL) {
+            char status[20];
+            size_t status_length = status_end - status_start;
+            strncpy(status, status_start, status_length);
+            status[status_length] = '\0';
+            
+            if (strcmp(status, "In Progress") == 0) {
+                return IN_PROGRESS;
+            } else if (strcmp(status, "Done") == 0) {
+                return DONE;
+            } else if (strcmp(status, "Archived") == 0) {
+                return ARCHIVED;
+            }
+        }
+    }
+    
+    // Default status if not found or invalid
+    return IN_PROGRESS;
+}
 // REQ 3
 int checkTitle(char * raw_title) {
     // Check if the title length is within the allowed limit
