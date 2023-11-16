@@ -319,7 +319,32 @@ void printAllTasks(struct Task *array_tasks, int no_tasks) {
         printTask(&array_tasks[i]);
     }
 }
+// Req 11
+void printTaskByNum(struct Task *array_tasks, int no_tasks, int num) {
+    for (int i = 0; i < no_tasks; i++) {
+        if (array_tasks[i].num == num) {
+            printTask(&array_tasks[i]);
+            return;
+        }
+    }
+    
+    printf("Task with Num #%d not found.\n", num);
+}
+void printHeadTasks(struct Task *array_tasks, int no_tasks, int quan) {
+    int print_quantity = (quan < no_tasks) ? quan : no_tasks;
 
+    for (int i = 0; i < print_quantity; i++) {
+        printTask(&array_tasks[i]);
+    }
+}
+// Req 12
+void printTailTasks(struct Task *array_tasks, int no_tasks, int quan) {
+    int print_quantity = (quan < no_tasks) ? quan : no_tasks;
+    
+    for (int i = no_tasks - print_quantity; i < no_tasks; i++) {
+        printTask(&array_tasks[i]);
+    }
+}
 // Test the functions
 int main() {
     char sample_input[] = "ADD [Course Intro to Programming] [Room 701-H6] [07:00|03/10/2023-12:00|01/10/2023]";
