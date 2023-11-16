@@ -370,6 +370,22 @@ void printFilteredTasksByStatus(struct Task *array_tasks, int no_tasks, enum Sta
         }
     }
 }
+// REQ 17: Add tasks
+bool addTask(struct Task *array_tasks, int no_tasks, char *new_title, char *new_description, char *new_time) {
+    if (no_tasks >= MAX_NO_TASKS) {
+        return false;  // Maximum number of tasks reached
+    }
+    
+    struct Task new_task;
+    new_task.num = no_tasks + 1;  // Assign task number
+    snprintf(new_task.title, sizeof(new_task.title), "%s", new_title);
+    snprintf(new_task.description, sizeof(new_task.description), "%s", new_description);
+    snprintf(new_task.time, sizeof(new_task.time), "%s", new_time);
+    new_task.status = IN_PROGRESS;  // Set default status
+    
+    array_tasks[no_tasks] = new_task;  // Add task to the array
+    return true;
+}
 // Test the functions
 int main() {
     char sample_input[] = "ADD [Course Intro to Programming] [Room 701-H6] [07:00|03/10/2023-12:00|01/10/2023]";
