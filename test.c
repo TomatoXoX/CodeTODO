@@ -153,8 +153,40 @@ int checkTime(char* raw_time) {
 
     return -1; // Time is valid
 }
-// dit con me may tri 
-// Req 6: Test
+// REQ 7: Number in Commands
+int getNumFromCommand(char *command) {
+    // Check if the command is NULL
+    if (command == NULL) {
+        printf("Error: Null command\n");
+        return -1;
+    }
+
+    // Find the position of '#' in the command
+    char *hashPosition = strchr(command, '#');
+
+    // If '#' is not present, return -1
+    if (hashPosition == NULL) {
+        return -1;
+    }
+
+    // Move to the character after '#' to get the potential number
+    hashPosition++;
+
+    // Extract and convert the number
+    int num = 0;
+    while (*hashPosition >= '0' && *hashPosition <= '9') {
+        num = num * 10 + (*hashPosition - '0');
+        hashPosition++;
+    }
+
+    // Check if at least one digit was found
+    if (num == 0) {
+        return 0; // Invalid <num>
+    }
+
+    return num; // Valid <num>
+}
+
 // Test the functions
 int main() {
     char sample_input[] = "ADD [Course Intro to Programming] [Room 701-H6] [07:00|03/10/2023-12:00|01/10/2023]";
@@ -199,6 +231,17 @@ int main() {
     } else {
         printf("Time is invalid for datetime%d.\n", timeCheck);
     }
+    // Test getNumFromCommand function
+    char sample_command1[] = "ADD [Task] #123";
+    char sample_command2[] = "DELETE #invalid";
+    char sample_command3[] = "SHOW [Event] [Location]";
 
+    int num1 = getNumFromCommand(sample_command1);
+    int num2 = getNumFromCommand(sample_command2);
+    int num3 = getNumFromCommand(sample_command3);
+
+    printf("Num from command 1: %d\n", num1); // Should print 123
+    printf("Num from command 2: %d\n", num2); // Should print 0 (invalid)
+    printf("Num from command 3: %d\n", num3); // Should print -1 (not present)
     return 0;
 }
