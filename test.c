@@ -11,16 +11,34 @@
 #define WEEK_CELL_FIRST_COL_WIDTH 10
 #define WEEK_CELL_OTHER_COL_WIDTH 20
 // Add task data structure
-struct Task tasks[MAX_NO_TASKS];
-int num_tasks = 0;
-enum Status {
-    IN_PROGRESS,
-    DONE,
-    ARCHIVED
+enum Status {IN_PROGRESS, DONE, ARCHIVED};
+char * status_name[] = {"In Progress", "Done", "Archived"};
+enum CommandType {ADD, EDIT, SHOW, DELETE, QUIT, INVALID};
+char * command_name[] = {"ADD", "EDIT", "SHOW", "DELETE", "QUIT", "INVALID"};
+
+struct Task {
+    int num;
+    char title[MAX_LENGTH_TITLE+1];
+    char description[MAX_LENGTH_DESCRIPTION+1];
+    char time[MAX_LENGTH_TIME+1];
+    enum Status status;
 };
+void printTask(struct Task * task) {
+    printf("--------------------------------------------\n");
+    printf("Num: #%d. Title: %s\n", task->num, task->title);
+    printf("Description: %s\n", task->description);
+    printf("Status: %s\n", status_name[task->status]);
+    printf("--------------------------------------------\n");
+}
+
+void printUnsupportedTime(struct Task * task) {
+    printf("----- Show week view -----\n");
+    printf("Error: Unsupported time with non-zero minutes: %s\n", task->time);
+    printf("In Task:\n");
+    printTask(task);
+}
+
 // REQ 1
-enum CommandType { ADD, EDIT, SHOW, DELETE, QUIT, INVALID };
-const char* command_name[] = { "ADD", "EDIT", "SHOW", "DELETE", "QUIT", "INVALID" };
 typedef enum CommandType CommandType;
 CommandType getCommandType(char* command) {
     char* space = strchr(command, ' ');
