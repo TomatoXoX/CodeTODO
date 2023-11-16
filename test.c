@@ -370,6 +370,37 @@ void printFilteredTasksByStatus(struct Task *array_tasks, int no_tasks, enum Sta
         }
     }
 }
+
+// Req 18
+bool deleteTask(struct Task *array_tasks, int *no_tasks, int num) {
+    int index = -1;
+    
+    // Find the index of the task with the given num
+    for (int i = 0; i < *no_tasks; i++) {
+        if (array_tasks[i].num == num) {
+            index = i;
+            break;
+        }
+    }
+    
+    if (index == -1) {
+        return false;  // Task with the given num not found
+    }
+    
+    // Shift the tasks to the left to remove the task at the given index
+    for (int i = index; i < *no_tasks - 1; i++) {
+        array_tasks[i] = array_tasks[i + 1];
+    }
+    
+    (*no_tasks)--;  // Reduce the number of tasks
+    
+    // Update the num member variable of the remaining tasks
+    for (int i = 0; i < *no_tasks; i++) {
+        array_tasks[i].num = i + 1;
+    }
+    
+    return true;
+}
 // Test the functions
 int main() {
     char sample_input[] = "ADD [Course Intro to Programming] [Room 701-H6] [07:00|03/10/2023-12:00|01/10/2023]";
