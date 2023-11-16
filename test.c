@@ -13,7 +13,11 @@
 // Add task data structure
 struct Task tasks[MAX_NO_TASKS];
 int num_tasks = 0;
-
+enum Status {
+    IN_PROGRESS,
+    DONE,
+    ARCHIVED
+};
 // REQ 1
 enum CommandType { ADD, EDIT, SHOW, DELETE, QUIT, INVALID };
 const char* command_name[] = { "ADD", "EDIT", "SHOW", "DELETE", "QUIT", "INVALID" };
@@ -103,7 +107,7 @@ void getTimeFromEdit(char *command, char *out_time) {
         }
     }
 }
-// Req 9
+// Req 9: Status
 enum Status getStatusFromEdit(char *edit_cmd) {
     char *status_start = strstr(edit_cmd, "status:[");
     if (status_start != NULL) {
