@@ -50,7 +50,37 @@ void getDescriptionFromAdd(char* command, char* out_description) {
         }
     }
 }
+int checkTitle(char * raw_title) {
+    // Check if the title length is within the allowed limit
+    if (strlen(raw_title) > MAX_LENGTH_TITLE) {
+        return strlen(raw_title); // Return the current length of the title
+    }
+    // Check if the title starts or ends with a whitespace character
+    if (raw_title[0] == ' ') {
+        return 0; // Error: Title starts or ends with a whitespace character
+    } else if (raw_title[strlen(raw_title) - 1] == ' ') {
+        return strlen(raw_title);
+    }
+    
+    // Define allowed characters for the title
+    char allowedCharacters[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ,.-:|/";
 
+    // Check if the title contains only allowed characters
+    for (int i = 0; raw_title[i] != '\0'; i++) {
+        int isValidChar = 0;
+        for (int j = 0; allowedCharacters[j] != '\0'; j++) {
+            if (raw_title[i] == allowedCharacters[j]) {
+                isValidChar = 1;
+                break;
+            }
+        }
+        if (!isValidChar) {
+            return i; // Return the position of the first invalid character
+        }
+    }
+
+    return -1;
+}
 void getTimeFromAdd(char* command, char* out_time) {
     char* start = strrchr(command, '['); // To find the last occurrence of [
     if (start) {
