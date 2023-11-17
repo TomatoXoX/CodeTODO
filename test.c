@@ -38,8 +38,7 @@ void printUnsupportedTime(struct Task * task) {
     printTask(task);
 }
 
-// REQ 1
-typedef enum CommandType CommandType;
+// REQ 1typedef enum CommandType CommandType;
 enum CommandType getCommandType(char* command) {
     char first_word[MAX_LENGTH_COMMAND];
     int i = 0;
@@ -59,6 +58,8 @@ enum CommandType getCommandType(char* command) {
 
     return INVALID;
 }
+
+
 // REQ 2 
 void getTitleFromAdd(char* command, char* out_title) {
     char* start = strstr(command, "[");
@@ -279,43 +280,30 @@ int getNumFromCommand(char *command) {
     return num; // Valid <num>
 }
 // REQ 8: Information to be changed in the Edit command
-int getFieldFromEdit(char *edit_cmd) {
-    // Check if the edit command is NULL
-    if (edit_cmd == NULL) {
-        printf("Error: Null edit command\n");
-        return 0; // Invalid field
-    }
-
-    // Find the position of the second whitespace in the edit command
-    char *secondSpace = strchr(edit_cmd, ' ');
-    if (secondSpace == NULL) {
-        return 0; // Invalid field
-    }
-
-    // Move to the character after the second whitespace
-    secondSpace++;
-    // Find the position of the first colon after the second whitespace
-    char *colonPosition = strchr(secondSpace, ':');
-    if (colonPosition == NULL) {
-        return 0; // Invalid field
-    }
-
-    // Calculate the length of the potential field string
-    size_t fieldLength = colonPosition - secondSpace;
-
-    // Check the validity of the field string
-    if (fieldLength == 7) {
+int getFieldFromEdit(char* edit_cmd) {
+    char* title_start = strstr(edit_cmd, "title:[");
+    if (title_start != NULL) {
         return 1; // Title
-    } else if (fieldLength == 13) {
-        return 2; // Description
-    } else if (fieldLength == 6) {
-        return 3; // Time
-    } else if (fieldLength == 8) {
-        return 4; // Status
-    } else {
-        return 0; // Invalid field
     }
+
+    char* description_start = strstr(edit_cmd, "description:[");
+    if (description_start != NULL) {
+        return 2; // Description
+    }
+
+    char* time_start = strstr(edit_cmd, "time:[");
+    if (time_start != NULL) {
+        return 3; // Time
+    }
+
+    char* status_start = strstr(edit_cmd, "status:[");
+    if (status_start != NULL) {
+        return 4; // Status
+    }
+
+    return 0; // Invalid field
 }
+
 // Req 10
 void printAllTasks(struct Task *array_tasks, int no_tasks) {
     for (int i = 0; i < no_tasks; i++) {
@@ -375,33 +363,33 @@ void printFilteredTasksByStatus(struct Task *array_tasks, int no_tasks, enum Sta
 }
 
 // Req 18
-bool deleteTask(struct Task *array_tasks, int *no_tasks, int num) {
+
+bool deleteTask(struct Task *array_tasks, int no_tasks, int num) {
     int index = -1;
-    
+
     // Find the index of the task with the given num
-    for (int i = 0; i < *no_tasks; i++) {
+    for (int i = 0; i < no_tasks; i++) {
         if (array_tasks[i].num == num) {
             index = i;
             break;
         }
     }
-    
+
+    // If the task was not found, return false
     if (index == -1) {
-        return false;  // Task with the given num not found
+        return false;
     }
-    
+
     // Shift the tasks to the left to remove the task at the given index
-    for (int i = index; i < *no_tasks - 1; i++) {
+    for (int i = index; i < no_tasks - 1; i++) {
         array_tasks[i] = array_tasks[i + 1];
     }
-    
-    (*no_tasks)--;  // Reduce the number of tasks
-    
+
     // Update the num member variable of the remaining tasks
-    for (int i = 0; i < *no_tasks; i++) {
+    for (int i = 0; i < no_tasks - 1; i++) {
         array_tasks[i].num = i + 1;
     }
-    
+
     return true;
 }
 // REQ 17: Add tasks
