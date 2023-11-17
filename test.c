@@ -40,22 +40,25 @@ void printUnsupportedTime(struct Task * task) {
 
 // REQ 1
 typedef enum CommandType CommandType;
-CommandType getCommandType(char* command) {
-    char* space = strchr(command, ' ');
-    int length = (space != NULL) ? space - command : strlen(command);
-    char first_word[length + 1];
-    strncpy(first_word, command, length);
-    first_word[length] = '\0';
+enum CommandType getCommandType(char* command) {
+    char first_word[MAX_LENGTH_COMMAND];
+    int i = 0;
 
-    for (int i = 0; i < sizeof(command_name) / sizeof(command_name[0]); i++) {
-        if (strcmp(first_word, command_name[i]) == 0) {
-            return i;
+    // Extract the first word
+    while (command[i] != '\0' && command[i] != ' ') {
+        first_word[i] = toupper(command[i]);
+        i++;
+    }
+    first_word[i] = '\0';
+
+    for (int j = 0; j < sizeof(command_name) / sizeof(command_name[0]); j++) {
+        if (strcasecmp(first_word, command_name[j]) == 0) {
+            return j;
         }
     }
 
     return INVALID;
 }
-
 // REQ 2 
 void getTitleFromAdd(char* command, char* out_title) {
     char* start = strstr(command, "[");
