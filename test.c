@@ -221,27 +221,92 @@ int checkDescription(char* raw_description) {
     return -1; // Description is valid
 }
 // REQ 5
-int checkTime(char* raw_time) {
-    // Extract datetime1 and datetime2 from raw_time
-    char datetime1[20];
-    char datetime2[20];
-    sscanf(raw_time, "%[^-]-%s", datetime1, datetime2);
+int isLeapYear(int year) {
+    return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0));
+}
+int isValidDate(int day, int month, int year) {
+    if (month < 1 || month > 12) return 1;  // Invalid month
+    if (day < 1) return 1;                   // Invalid day
 
-    // Validate datetime1
-    int hh1, mm1, dd1, mo1, yyyy1;
-    if (sscanf(datetime1, "%d:%d|%d/%d/%d", &hh1, &mm1, &dd1, &mo1, &yyyy1) != 5) {
-        return 11; // Invalid datetime1
+    int maxDays = 31;
+
+    if (month == 4 || month == 6 || month == 9 || month == 11) {
+        maxDays = 30;
+    } else if (month == 2) {
+        maxDays = isLeapYear(year) ? 29 : 28;
     }
 
-    // Validate datetime2
-    int hh2, mm2, dd2, mo2, yyyy2;
-    if (sscanf(datetime2, "%d:%d|%d/%d/%d", &hh2, &mm2, &dd2, &mo2, &yyyy2) != 5) {
-        return 12; // Invalid datetime2
+    return day > maxDays;
+}
+
+int isValidHour(int hour) {
+    return hour < 0 || hour > 23;
+}
+int isValidMinute(int minute) {
+    return minute < 0 || minute > 59;
+}
+int isValidMonth(int month) {
+    return month < 1 || month > 12;
+}
+
+int isValidYear(int year) {
+    return year <= 0;
+}
+
+int checkTime(char *raw_time) {
+    int hour1, minute1, day1, month1, year1;
+    int hour2, minute2, day2, month2, year2;
+
+    // Parse raw_time into individual components
+    if (sscanf(raw_time, "%2d:%2d|%2d/%2d/%4d-%2d:%2d|%2d/%2d/%4d",
+               &hour1, &minute1, &day1, &month1, &year1,
+               &hour2, &minute2, &day2, &month2, &year2) != 10) {
+        // Invalid format
+        return 0;
+    }
+
+    // Check if datetime1 is valid
+    if (isValidDate(day1, month1, year1)) {
+        return 3100 + day1; // Return corresponding value for day1
+    }
+    if (isValidHour(hour1)) {
+        return 1100 + hour1; // Return corresponding value for hour1
+    }
+    if (isValidMinute(minute1)) {
+        return 2100 + minute1; // Return corresponding value for minute1
+    }
+
+    if (isValidMonth(month1)) {
+        return 4100 + month1; // Return corresponding value for month1
+    }
+
+    if (isValidYear(year1)) {
+        return 510000 + year1; // Return corresponding value for year1
+    }
+
+    // Check if datetime2 is valid
+    if (isValidDate(day2, month2, year2)) {
+        return 3200 + day2; // Return corresponding value for day2
+    }
+
+    if (isValidHour(hour2)) {
+        return 1200 + hour2; // Return corresponding value for hour1
+    }
+    if (isValidMinute(minute2)) {
+        return 2200 + minute1; // Return corresponding value for minute1
+    }
+
+    if (isValidMonth(month2)) {
+        return 4200 + month2; // Return corresponding value for month2
+    }
+
+    if (isValidYear(year2)) {
+        return 520000 + year2; // Return corresponding value for year2
     }
 
     // Check if datetime2 is earlier than datetime1
-    if (yyyy2 < yyyy1 || (yyyy2 == yyyy1 && (mo2 < mo1 || (mo2 == mo1 && (dd2 < dd1 || (dd2 == dd1 && (hh2 < hh1 || (hh2 == hh1 && mm2 < mm1)))))))) {
-        return 0; // datetime2 is earlier than datetime1
+    if ((year2 < year1) || (year2 == year1 && (month2 < month1 || (month2 == month1 && (day2 < day1 || (day2 == day1 && (hour2 < hour1 || (hour2 == hour1 && minute2 < minute1)))))))) {
+        return 0; // Condition 3 is violated
     }
 
     return -1; // Time is valid
@@ -464,59 +529,14 @@ int printWeekTime(struct Task *array_tasks, int no_tasks, char *date) {
 }
 // Test the functions
 int main() {
-    char sample_input[] = "ADD [Course Intro to Programming] [Room 701-H6] [07:00|03/10/2023-12:00|01/10/2023]";
-    char raw_title[50];
-    char raw_description[50];
-    char raw_time[50];
+    char raw_time[] = "12:30|24/11/2023-14:45|66/11/2023";
+    int result = checkTime(raw_time);
 
-    getTitleFromAdd(sample_input, raw_title);
-    getDescriptionFromAdd(sample_input, raw_description);
-    getTimeFromAdd(sample_input, raw_time);
-
-    printf("Title: %s\n", raw_title);
-    printf("Description: %s\n", raw_description);
-    printf("Time: %s\n", raw_time);
-
-    // Test checkTitle function
-    int titleCheck = checkTitle(raw_title);
-    if (titleCheck == -1) {
-        printf("Title is valid.\n");
-    } else if (titleCheck == strlen(raw_title)) {
-        printf("Title length exceeds the maximum limit.\n");
-    } else {
-        printf("Title is invalid at position %d.\n", titleCheck);
-    }
-
-    // Test checkDescription function
-    int descriptionCheck = checkDescription(raw_description);
-    if (descriptionCheck == -1) {
-        printf("Description is valid.\n");
-    } else if (descriptionCheck == strlen(raw_description)) {
-        printf("Description length exceeds the maximum limit.\n");
-    } else {
-        printf("Description is invalid at position %d.\n", descriptionCheck);
-    }
-
-    // Test checkTime function
-    int timeCheck = checkTime(raw_time);
-    if (timeCheck == -1) {
+    if (result == -1) {
         printf("Time is valid.\n");
-    } else if (timeCheck == 0) {
-        printf("Ending time is earlier than the starting time.\n");
     } else {
-        printf("Time is invalid for datetime%d.\n", timeCheck);
+        printf("Time is invalid. Error code: %d\n", result);
     }
-    // Test getNumFromCommand function
-    char sample_command1[] = "ADD [Task] #123";
-    char sample_command2[] = "DELETE #invalid";
-    char sample_command3[] = "SHOW [Event] [Location]";
 
-    int num1 = getNumFromCommand(sample_command1);
-    int num2 = getNumFromCommand(sample_command2);
-    int num3 = getNumFromCommand(sample_command3);
-
-    printf("Num from command 1: %d\n", num1); // Should print 123
-    printf("Num from command 2: %d\n", num2); // Should print 0 (invalid)
-    printf("Num from command 3: %d\n", num3); // Should print -1 (not present)
     return 0;
 }
