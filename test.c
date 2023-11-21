@@ -9,7 +9,8 @@
 #define MAX_LENGTH_DESCRIPTION 200
 #define MAX_LENGTH_TIME 33
 #define WEEK_CELL_FIRST_COL_WIDTH 10
-#define WEEK_CELL_OTHER_COL_WIDTH 20
+#define WEEK_CELL_OTHER_COL_WIDTH 17
+
 // Add task data structure
 enum Status {IN_PROGRESS, DONE, ARCHIVED};
 char * status_name[] = {"In Progress", "Done", "Archived"};
@@ -474,70 +475,70 @@ bool addTask(struct Task *array_tasks, int no_tasks, char *new_title, char *new_
     array_tasks[no_tasks] = new_task;  // Add task to the array
     return true;
 }
-// Function to parse a date string in the format "DD/MM/YYYY"
-void parseDate(const char * str, int *day, int *month, int *year){
-    sscanf(str,"%d/%d/%d", day, month, year);
-}
-
-// Function to check if two dates are in the same week
-bool isSameWeek(int day1, int month1, int year1, int day2, int month2, int year2) {
-    // This is a basic check assuming all months have 30 days
-    // You might want to replace this with a more accurate check
-    int ordinal1 = day1 + month1 * 30 + year1 * 365;
-    int ordinal2 = day2 + month2 * 30 + year2 * 365;
-    return abs(ordinal1 - ordinal2) < 7;
-}
-
-// Implementation of printWeekTime function
-int printWeekTime(struct Task *array_tasks, int no_tasks, char *date) {
-    int given_day, given_month, given_year;
-    sscanf(date, "%*[^/]/%d/%d/%d", &given_day, &given_month, &given_year);
-
-    // Generate weekly task display
-    printf("%-*s", WEEK_CELL_FIRST_COL_WIDTH, "YEAR");
-    for (int i = 0; i < 7; i++) {
-        printf("%-*s", WEEK_CELL_OTHER_COL_WIDTH, "DAY/MO");
+int dayOfWeek(int day, int month, int year) {
+    if (month < 3) {
+        month += 12;
+        year--;
     }
-    printf("\n");
+    int h = (day + 2*month + 3*(month + 1)/5 + year + year/4 - year/100 + year/400) % 7;
+    return h;
+}
 
-    for (int h = 0; h < 24; h++) {
-        printf("%02d:00", h);
-        for (int i = 0; i < no_tasks; i++) {
-            struct Task task = array_tasks[i];
-            int start_hour, start_minute, end_hour, end_minute;
-            int task_day, task_month, task_year;
-            sscanf(task.time, "%d:%d|%d/%d/%d-%d:%d", &start_hour, &start_minute, &task_day, &task_month, &task_year, &end_hour, &end_minute);
-            if (start_minute != 0 || end_minute != 0) {
-                printUnsupportedTime(&task);
-                return i;
-            }
-            if (abs((given_year*365 + given_month*30 + given_day) - (task_year*365 + task_month*30 + task_day)) < 7 && start_hour <= h && h < end_hour) {
-                char task_title[MAX_LENGTH_TITLE+4];
-                strncpy(task_title, task.title, WEEK_CELL_OTHER_COL_WIDTH-4);
-                if (strlen(task.title) > WEEK_CELL_OTHER_COL_WIDTH-4) {
-                    strcat(task_title, "...");
-                }
-                printf("%-*s", WEEK_CELL_OTHER_COL_WIDTH, task_title);
-            } else {
-                printf("%-*s", WEEK_CELL_OTHER_COL_WIDTH, "");
-            }
+int printWeekTime(struct Task * array_tasks, int no_tasks, char * date) {
+    // Parse date
+    int givenDay, givenMonth, givenYear;
+    sscanf(date, "%d/%d/%d", &givenDay, &givenMonth, &givenYear);
+    
+    // Get the day of the week
+    int givenWeekDay = dayOfWeek(givenDay, givenMonth, givenYear);
+    
+    // Iterate over the tasks
+    for (int i = 0; i < no_tasks; i++) {
+        // Parse task time
+        int taskHour, taskMinute, taskDay, taskMonth, taskYear;
+        sscanf(array_tasks[i].time, "%d:%d|%d/%d/%d", &taskHour, &taskMinute, &taskDay, &taskMonth, &taskYear);
+        
+        // Get the day of the week for the task
+        int taskWeekDay = dayOfWeek(taskDay, taskMonth, taskYear);
+
+        // Check if the task falls within the week of the given date
+        if (taskWeekDay >= givenWeekDay && taskWeekDay < (givenWeekDay + 7)) {
+            // Print the task
+            printTask(&array_tasks[i]);
+        } else {
+            // Call printUnsupportedTime and return the position of the error
+            printUnsupportedTime(&array_tasks[i]);
+            return i;
         }
-        printf("\n");
     }
-
-    // If all tasks can be displayed for the week, return -1
-    return -1;
+    
+    return -1; // All tasks can be displayed for the week
 }
 // Test the functions
 int main() {
-    char raw_time[] = "12:30|24/11/2023-14:45|66/11/2023";
-    int result = checkTime(raw_time);
+    // Create an array of tasks
+    struct Task array_tasks[5] = {
+        {1, "Course Intro to Programming", "Room 701-H6 - orange", "07:00|16/10/2023-09:00|16/10/2023", IN_PROGRESS},
+        {2, "Meeting Project Apple", "Room 701-H6 - apple", "08:00|17/10/2023-09:00|17/10/2023", IN_PROGRESS},
+        {3, "Meeting Project Banana", "Room 701-H6 - orange", "07:00|19/10/2023-08:00|19/10/2023", IN_PROGRESS},
+        {4, "Do an Tong hop - TTNT", "Room 701-H6 - orange", "09:00|21/10/2023-10:00|21/10/2023", IN_PROGRESS},
+        {5, "Course Intro to Programming - apple", "Room 701-H6 - banana", "07:00|01/10/2023-12:00|01/10/2023", DONE},
+    };
 
+    // Set the number of tasks
+    int no_tasks = 5;
+
+    // Set the date
+    char date[] = "wed/18/10/2023";
+
+    // Call the printWeekTime function and capture its return value
+    int result = printWeekTime(array_tasks, no_tasks, date);
+
+    // Check the return value
     if (result == -1) {
-        printf("Time is valid.\n");
+        printf("All tasks for the week were successfully displayed.\n");
     } else {
-        printf("Time is invalid. Error code: %d\n", result);
+        printf("The task at index %d could not be displayed.\n", result);
     }
-
-    return 0;
+return 0; 
 }
