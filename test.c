@@ -224,6 +224,7 @@ int checkDescription(char* raw_description) {
 int isLeapYear(int year) {
     return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0));
 }
+
 int isValidDate(int day, int month, int year) {
     if (month < 1 || month > 12) return 1;  // Invalid month
     if (day < 1) return 1;                   // Invalid day
