@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-
 #define MAX_LENGTH_COMMAND 300
 #define MAX_NO_TASKS 100
 #define MAX_LENGTH_TITLE 100
@@ -10,13 +9,10 @@
 #define MAX_LENGTH_TIME 33
 #define WEEK_CELL_FIRST_COL_WIDTH 10
 #define WEEK_CELL_OTHER_COL_WIDTH 17
-
-// Add task data structure
 enum Status {IN_PROGRESS, DONE, ARCHIVED};
 char * status_name[] = {"In Progress", "Done", "Archived"};
 enum CommandType {ADD, EDIT, SHOW, DELETE, QUIT, INVALID};
 char * command_name[] = {"ADD", "EDIT", "SHOW", "DELETE", "QUIT", "INVALID"};
-
 struct Task {
     int num;
     char title[MAX_LENGTH_TITLE+1];
@@ -31,37 +27,23 @@ void printTask(struct Task * task) {
     printf("Status: %s\n", status_name[task->status]);
     printf("--------------------------------------------\n");
 }
-
 void printUnsupportedTime(struct Task * task) {
     printf("----- Show week view -----\n");
     printf("Error: Unsupported time with non-zero minutes: %s\n", task->time);
     printf("In Task:\n");
     printTask(task);
 }
-
-// REQ 1typedef enum CommandType CommandType;
 enum CommandType getCommandType(char* command) {
-    char first_word[MAX_LENGTH_COMMAND];
-    int i = 0;
-
-    // Extract the first word
-    while (command[i] != '\0' && command[i] != ' ') {
-        first_word[i] = toupper(command[i]);
-        i++;
-    }
-    first_word[i] = '\0';
-
-    for (int j = 0; j < sizeof(command_name) / sizeof(command_name[0]); j++) {
-        if (strcasecmp(first_word, command_name[j]) == 0) {
-            return j;
+    char* first_word = strtok(command, " ");
+    if (first_word != NULL) {
+        for (int j = 0; j < sizeof(command_name) / sizeof(command_name[0]); j++) {
+            if (strcasecmp(first_word, command_name[j]) == 0) {
+                return j;
+            }
         }
     }
-
     return INVALID;
 }
-
-
-// REQ 2 
 void getTitleFromAdd(char* command, char* out_title) {
     char* start = strstr(command, "[");
     char* end = strstr(command, "]");
@@ -70,11 +52,10 @@ void getTitleFromAdd(char* command, char* out_title) {
         out_title[end - start - 1] = '\0';
     }
 }
-
 void getDescriptionFromAdd(char* command, char* out_description) {
     char* start = strstr(command, "] [");
     if (start) {
-        start += 3; // To skip the "] ["
+        start += 3;
         char* end = strstr(start, "]");
         if (end && end > start) {
             strncpy(out_description, start, end - start);
@@ -83,9 +64,9 @@ void getDescriptionFromAdd(char* command, char* out_description) {
     }
 }
 void getTimeFromAdd(char* command, char* out_time) {
-    char* start = strrchr(command, '['); // To find the last occurrence of [
+    char* start = strrchr(command, '[');
     if (start) {
-        start += 1; // To skip the "["
+        start += 1;
         char* end = strstr(start, "]");
         if (end && end > start) {
             strncpy(out_time, start, end - start);
@@ -94,55 +75,47 @@ void getTimeFromAdd(char* command, char* out_time) {
     }
 }
 void getTitleFromEdit(char *command, char *out_title) {
-    char *title_start = strstr(command, "title:[");
-    if (title_start != NULL) {
-        title_start += strlen("title:[");
-        char *title_end = strchr(title_start, ']');
-        if (title_end != NULL) {
-            size_t title_length = title_end - title_start;
-            strncpy(out_title, title_start, title_length);
-            out_title[title_length] = '\0';
+    char* start = strstr(command, "title:[");
+    if (start) {
+        start += 7;
+        char* end = strchr(start, ']');
+        if (end && end > start) {
+            strncpy(out_title, start, end - start);
+            out_title[end - start] = '\0';
         }
     }
 }
-
 void getDescriptionFromEdit(char *command, char *out_description) {
-    char *description_start = strstr(command, "description:[");
-    if (description_start != NULL) {
-        description_start += strlen("description:[");
-        char *description_end = strchr(description_start, ']');
-        if (description_end != NULL) {
-            size_t description_length = description_end - description_start;
-            strncpy(out_description, description_start, description_length);
-            out_description[description_length] = '\0';
+    char* start = strstr(command, "description:[");
+    if (start) {
+        start += 13;
+        char* end = strchr(start, ']');
+        if (end && end > start) {
+            strncpy(out_description, start, end - start);
+            out_description[end - start] = '\0';
         }
     }
 }
-
 void getTimeFromEdit(char *command, char *out_time) {
-    char *time_start = strstr(command, "time:[");
-    if (time_start != NULL) {
-        time_start += strlen("time:[");
-        char *time_end = strchr(time_start, ']');
-        if (time_end != NULL) {
-            size_t time_length = time_end - time_start;
-            strncpy(out_time, time_start, time_length);
-            out_time[time_length] = '\0';
+    char* start = strstr(command, "time:[");
+    if (start) {
+        start += 6;
+        char* end = strchr(start, ']');
+        if (end && end > start) {
+            strncpy(out_time, start, end - start);
+            out_time[end - start] = '\0';
         }
     }
 }
-// Req 9: Status
 enum Status getStatusFromEdit(char *edit_cmd) {
-    char *status_start = strstr(edit_cmd, "status:[");
-    if (status_start != NULL) {
-        status_start += strlen("status:[");
-        char *status_end = strchr(status_start, ']');
-        if (status_end != NULL) {
-            char status[20];
-            size_t status_length = status_end - status_start;
-            strncpy(status, status_start, status_length);
-            status[status_length] = '\0';
-            
+    char status[20];
+    char* start = strstr(edit_cmd, "status:[");
+    if (start) {
+        start += 8;
+        char* end = strchr(start, ']');
+        if (end && end > start) {
+            strncpy(status, start, end - start);
+            status[end - start] = '\0';
             if (strcmp(status, "In Progress") == 0) {
                 return IN_PROGRESS;
             } else if (strcmp(status, "Done") == 0) {
@@ -152,27 +125,19 @@ enum Status getStatusFromEdit(char *edit_cmd) {
             }
         }
     }
-    
-    // Default status if not found or invalid
     return IN_PROGRESS;
 }
 // REQ 3
 int checkTitle(char * raw_title) {
-    // Check if the title length is within the allowed limit
     if (strlen(raw_title) > MAX_LENGTH_TITLE) {
-        return strlen(raw_title); // Return the current length of the title
+        return strlen(raw_title); 
     }
-    // Check if the title starts or ends with a whitespace character
     if (raw_title[0] == ' ') {
-        return 0; // Error: Title starts or ends with a whitespace character
+        return 0;
     } else if (raw_title[strlen(raw_title) - 1] == ' ') {
         return strlen(raw_title);
     }
-    
-    // Define allowed characters for the title
     char allowedCharacters[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ,.-:|/";
-
-    // Check if the title contains only allowed characters
     for (int i = 0; raw_title[i] != '\0'; i++) {
         int isValidChar = 0;
         for (int j = 0; allowedCharacters[j] != '\0'; j++) {
@@ -182,35 +147,25 @@ int checkTitle(char * raw_title) {
             }
         }
         if (!isValidChar) {
-            return i; // Return the position of the first invalid character
+            return i; 
         }
     }
 
     return -1;
 }
-
-// REQ 4
 int checkDescription(char* raw_description) {
     int length = strlen(raw_description);
-
-    // Check maximum length condition
     if (length > MAX_LENGTH_DESCRIPTION) {
         return length;
     }
-
-    // Check other conditions
     for (int i = 0; i < length; i++) {
         char ch = raw_description[i];
-
-        // Check if it's a valid character
         if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
               (ch >= '0' && ch <= '9') || ch == ' ' || ch == ',' ||
               ch == '.' || ch == '-' || ch == ':' ||
               ch == '|' || ch == '/')) {
             return i;
         }
-
-        // Check for leading or trailing whitespace
         if (i == 0 && ch == ' ') {
             return i;
         }
@@ -218,29 +173,22 @@ int checkDescription(char* raw_description) {
             return i;
         }
     }
-
-    return -1; // Description is valid
+    return -1;
 }
-// REQ 5
 int isLeapYear(int year) {
     return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0));
 }
-
 int isValidDate(int day, int month, int year) {
-    if (month < 1 || month > 12) return 1;  // Invalid month
-    if (day < 1) return 1;                   // Invalid day
-
+    if (month < 1 || month > 12) return 1;
+    if (day < 1) return 1;                   
     int maxDays = 31;
-
     if (month == 4 || month == 6 || month == 9 || month == 11) {
         maxDays = 30;
     } else if (month == 2) {
         maxDays = isLeapYear(year) ? 29 : 28;
     }
-
     return day > maxDays;
 }
-
 int isValidHour(int hour) {
     return hour < 0 || hour > 23;
 }
@@ -250,117 +198,90 @@ int isValidMinute(int minute) {
 int isValidMonth(int month) {
     return month < 1 || month > 12;
 }
-
 int isValidYear(int year) {
     return year <= 0;
 }
-
 int checkTime(char *raw_time) {
     int hour1, minute1, day1, month1, year1;
     int hour2, minute2, day2, month2, year2;
-
-    // Parse raw_time into individual components
     if (sscanf(raw_time, "%2d:%2d|%2d/%2d/%4d-%2d:%2d|%2d/%2d/%4d",
                &hour1, &minute1, &day1, &month1, &year1,
                &hour2, &minute2, &day2, &month2, &year2) != 10) {
-        // Invalid format
+       
         return 0;
     }
-
-    // Check if datetime1 is valid
     if (isValidDate(day1, month1, year1)) {
-        return 3100 + day1; // Return corresponding value for day1
+        return 3100 + day1; 
     }
     if (isValidHour(hour1)) {
-        return 1100 + hour1; // Return corresponding value for hour1
+        return 1100 + hour1; 
     }
     if (isValidMinute(minute1)) {
-        return 2100 + minute1; // Return corresponding value for minute1
+        return 2100 + minute1; 
     }
-
     if (isValidMonth(month1)) {
-        return 4100 + month1; // Return corresponding value for month1
+        return 4100 + month1; 
     }
-
     if (isValidYear(year1)) {
-        return 510000 + year1; // Return corresponding value for year1
+        return 510000 + year1;
     }
-
-    // Check if datetime2 is valid
     if (isValidDate(day2, month2, year2)) {
-        return 3200 + day2; // Return corresponding value for day2
+        return 3200 + day2; 
     }
-
     if (isValidHour(hour2)) {
-        return 1200 + hour2; // Return corresponding value for hour1
+        return 1200 + hour2; 
     }
     if (isValidMinute(minute2)) {
-        return 2200 + minute1; // Return corresponding value for minute1
+        return 2200 + minute1; 
     }
-
     if (isValidMonth(month2)) {
-        return 4200 + month2; // Return corresponding value for month2
+        return 4200 + month2; 
     }
-
     if (isValidYear(year2)) {
-        return 520000 + year2; // Return corresponding value for year2
+        return 520000 + year2; 
     }
-
-    // Check if datetime2 is earlier than datetime1
     if ((year2 < year1) || (year2 == year1 && (month2 < month1 || (month2 == month1 && (day2 < day1 || (day2 == day1 && (hour2 < hour1 || (hour2 == hour1 && minute2 < minute1)))))))) {
         return 0; // Condition 3 is violated
     }
-
-    return -1; // Time is valid
+    return -1;
 }
-// REQ 7: Number in Commands
 int getNumFromCommand(char *command) {
-    // Check if the command is NULL
+
     if (command == NULL) {
         printf("Error: Null command\n");
         return -1;
     }
-
-    // Find the position of '#' in the command
     char *hashPosition = strchr(command, '#');
 
-    // If '#' is not present, return -1
     if (hashPosition == NULL) {
         return -1;
     }
-
-    // Move to the character after '#' to get the potential number
     hashPosition++;
-
-    // Extract and convert the number
     int num = 0;
     while (*hashPosition >= '0' && *hashPosition <= '9') {
         num = num * 10 + (*hashPosition - '0');
         hashPosition++;
     }
-
-    // Check if at least one digit was found
     if (num == 0) {
-        return 0; // Invalid <num>
+        return 0;
     }
-
-    return num; // Valid <num>
+    return num; 
 }
-// REQ 8: Information to be changed in the Edit command
+
 int getFieldFromEdit(char* edit_cmd) {
     char* title_start = strstr(edit_cmd, "title:[");
     if (title_start != NULL) {
-        return 1; // Title
+        return 1; 
     }
 
     char* description_start = strstr(edit_cmd, "description:[");
     if (description_start != NULL) {
-        return 2; // Description
+        return 2; 
     }
 
     char* time_start = strstr(edit_cmd, "time:[");
     if (time_start != NULL) {
-        return 3; // Time
+        return 3; 
     }
 
     char* status_start = strstr(edit_cmd, "status:[");
@@ -368,16 +289,15 @@ int getFieldFromEdit(char* edit_cmd) {
         return 4; // Status
     }
 
-    return 0; // Invalid field
+    return 0;
 }
 
-// Req 10
 void printAllTasks(struct Task *array_tasks, int no_tasks) {
     for (int i = 0; i < no_tasks; i++) {
         printTask(&array_tasks[i]);
     }
 }
-// Req 11
+
 void printTaskByNum(struct Task *array_tasks, int no_tasks, int num) {
     for (int i = 0; i < no_tasks; i++) {
         if (array_tasks[i].num == num) {
@@ -388,7 +308,7 @@ void printTaskByNum(struct Task *array_tasks, int no_tasks, int num) {
     
     printf("Task with Num #%d not found.\n", num);
 }
-// Req 12
+
 void printHeadTasks(struct Task *array_tasks, int no_tasks, int quan) {
     int print_quantity = (quan < no_tasks) ? quan : no_tasks;
 
@@ -396,7 +316,7 @@ void printHeadTasks(struct Task *array_tasks, int no_tasks, int quan) {
         printTask(&array_tasks[i]);
     }
 }
-// Req 13
+
 void printTailTasks(struct Task *array_tasks, int no_tasks, int quan) {
     int print_quantity = (quan < no_tasks) ? quan : no_tasks;
     
@@ -404,7 +324,7 @@ void printTailTasks(struct Task *array_tasks, int no_tasks, int quan) {
         printTask(&array_tasks[i]);
     }
 }
-// Req 14
+
 void printFilteredTasksByTitle(struct Task *array_tasks, int no_tasks, char *filter_title) {
     for (int i = 0; i < no_tasks; i++) {
         if (strstr(array_tasks[i].title, filter_title) != NULL) {
@@ -412,7 +332,7 @@ void printFilteredTasksByTitle(struct Task *array_tasks, int no_tasks, char *fil
         }
     }
 }
-// Req 15
+
 void printFilteredTasksByDescription(struct Task *array_tasks, int no_tasks, char *filter_description) {
     for (int i = 0; i < no_tasks; i++) {
         if (strstr(array_tasks[i].description, filter_description) != NULL) {
@@ -420,7 +340,7 @@ void printFilteredTasksByDescription(struct Task *array_tasks, int no_tasks, cha
         }
     }
 }
-// Req 16
+
 void printFilteredTasksByStatus(struct Task *array_tasks, int no_tasks, enum Status filter_status) {
     for (int i = 0; i < no_tasks; i++) {
         if (array_tasks[i].status == filter_status) {
@@ -429,12 +349,12 @@ void printFilteredTasksByStatus(struct Task *array_tasks, int no_tasks, enum Sta
     }
 }
 
-// Req 18
+
 
 bool deleteTask(struct Task *array_tasks, int no_tasks, int num) {
     int index = -1;
 
-    // Find the index of the task with the given num
+    
     for (int i = 0; i < no_tasks; i++) {
         if (array_tasks[i].num == num) {
             index = i;
@@ -442,37 +362,37 @@ bool deleteTask(struct Task *array_tasks, int no_tasks, int num) {
         }
     }
 
-    // If the task was not found, return false
+
     if (index == -1) {
         return false;
     }
 
-    // Shift the tasks to the left to remove the task at the given index
+   
     for (int i = index; i < no_tasks - 1; i++) {
         array_tasks[i] = array_tasks[i + 1];
     }
 
-    // Update the num member variable of the remaining tasks
+    
     for (int i = 0; i < no_tasks - 1; i++) {
         array_tasks[i].num = i + 1;
     }
 
     return true;
 }
-// REQ 17: Add tasks
+
 bool addTask(struct Task *array_tasks, int no_tasks, char *new_title, char *new_description, char *new_time) {
     if (no_tasks >= MAX_NO_TASKS) {
-        return false;  // Maximum number of tasks reached
+        return false;  
     }
     
     struct Task new_task;
-    new_task.num = no_tasks + 1;  // Assign task number
+    new_task.num = no_tasks + 1;
     snprintf(new_task.title, sizeof(new_task.title), "%s", new_title);
     snprintf(new_task.description, sizeof(new_task.description), "%s", new_description);
     snprintf(new_task.time, sizeof(new_task.time), "%s", new_time);
-    new_task.status = IN_PROGRESS;  // Set default status
+    new_task.status = IN_PROGRESS; 
     
-    array_tasks[no_tasks] = new_task;  // Add task to the array
+    array_tasks[no_tasks] = new_task;  
     return true;
 }
 int dayOfWeek(int day, int month, int year) {
@@ -484,35 +404,45 @@ int dayOfWeek(int day, int month, int year) {
     return h;
 }
 
-int printWeekTime(struct Task * array_tasks, int no_tasks, char * date) {
-    // Parse date
-    int givenDay, givenMonth, givenYear;
-    sscanf(date, "%d/%d/%d", &givenDay, &givenMonth, &givenYear);
-    
-    // Get the day of the week
-    int givenWeekDay = dayOfWeek(givenDay, givenMonth, givenYear);
-    
-    // Iterate over the tasks
-    for (int i = 0; i < no_tasks; i++) {
-        // Parse task time
-        int taskHour, taskMinute, taskDay, taskMonth, taskYear;
-        sscanf(array_tasks[i].time, "%d:%d|%d/%d/%d", &taskHour, &taskMinute, &taskDay, &taskMonth, &taskYear);
-        
-        // Get the day of the week for the task
-        int taskWeekDay = dayOfWeek(taskDay, taskMonth, taskYear);
+int dateToInt(int d, int m, int y) {
+    return y * 10000 + m * 100 + d;
+}
 
-        // Check if the task falls within the week of the given date
-        if (taskWeekDay >= givenWeekDay && taskWeekDay < (givenWeekDay + 7)) {
-            // Print the task
+int printWeekTime(struct Task * array_tasks, int no_tasks, char * date) {
+    
+    char weekDay[4];
+    int givenDay, givenMonth, givenYear;
+    sscanf(date, "%3s/%d/%d/%d", weekDay, &givenDay, &givenMonth, &givenYear); 
+
+    
+    int startWeekTime = dateToInt(givenDay, givenMonth, givenYear);
+    int endWeekTime = dateToInt(givenDay + 6, givenMonth, givenYear);
+
+    
+    for (int i = 0; i < no_tasks; i++) {
+        
+        int taskStartHour, taskStartMinute, taskStartDay, taskStartMonth, taskStartYear;
+        int taskEndHour, taskEndMinute, taskEndDay, taskEndMonth, taskEndYear;
+        sscanf(array_tasks[i].time, "%2d:%2d|%2d/%2d/%4d-%2d:%2d|%2d/%2d/%4d", 
+               &taskStartHour, &taskStartMinute, &taskStartDay, &taskStartMonth, &taskStartYear,
+               &taskEndHour, &taskEndMinute, &taskEndDay, &taskEndMonth, &taskEndYear);
+
+       
+        int taskStartTime_t = dateToInt(taskStartDay, taskStartMonth, taskStartYear);
+        int taskEndTime_t = dateToInt(taskEndDay, taskEndMonth, taskEndYear);
+
+        
+        if (taskStartTime_t >= startWeekTime && taskEndTime_t <= endWeekTime) {
+            
             printTask(&array_tasks[i]);
         } else {
-            // Call printUnsupportedTime and return the position of the error
+            
             printUnsupportedTime(&array_tasks[i]);
             return i;
         }
     }
     
-    return -1; // All tasks can be displayed for the week
+    return -1; 
 }
 // Test the functions
 int main() {
@@ -525,7 +455,7 @@ int main() {
         {5, "Course Intro to Programming - apple", "Room 701-H6 - banana", "07:00|01/10/2023-12:00|01/10/2023", DONE},
     };
 
-    // Set the number of tasks
+  
     int no_tasks = 5;
 
     // Set the date
